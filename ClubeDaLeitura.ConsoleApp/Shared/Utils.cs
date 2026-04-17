@@ -260,7 +260,7 @@ public static partial class Utils
             string input = PromptBox(title, msg).Trim();
             string wordMin = minLength == 1 ? "letra" : "letras";
             string wordMax = maxLength == 1 ? "letra" : "letras";
-            
+
             if (input.Length == 0 && minLength > 0)
                 MsgBox("Aviso", "Entrada inválida. Insira algum texto.");
             else if (input.Length < minLength)
@@ -281,6 +281,16 @@ public static partial class Utils
                 return amount;
 
             MsgBox("Aviso", amount <= 0 ? "O preço deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
+        }
+    }
+    public static int GetValidInteger(string title, string msg)
+    {
+        while (true)
+        {
+            if (int.TryParse(PromptBox(title, msg), out int value) && value > 0)
+                return value;
+
+            MsgBox("Aviso", value <= 0 ? "O valor deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
         }
     }
 }
