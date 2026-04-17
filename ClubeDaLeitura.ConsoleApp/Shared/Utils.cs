@@ -45,9 +45,9 @@ public static partial class Utils
         MsgBox(title, msg, false);
 
         string userInput = string.Empty;
-        int x = msg.Length + BoxH;
+        int x = msg.VisibleLength() + BoxH;
         int y = BoxV;
-        int maxLength = MenuWidth - msg.Length - BoxH;
+        int maxLength = MenuWidth - msg.VisibleLength() - BoxH;
         Console.SetCursorPosition(x, y);
 
         while (true)
@@ -82,7 +82,7 @@ public static partial class Utils
         char[] userInput = new char[dateLength];
         int[] slashPos = [2, 4];
         int index = 0;
-        int x = msg.Length + BoxH;
+        int x = msg.VisibleLength() + BoxH;
         int y = BoxV;
         Console.SetCursorPosition(x, y);
 
@@ -126,7 +126,7 @@ public static partial class Utils
                     index = 0;
                     Console.SetCursorPosition(0, 0);
                     MsgBox(title, msg + DateTemplate, false);
-                    x = msg.Length + BoxH;
+                    x = msg.VisibleLength() + BoxH;
                     Console.SetCursorPosition(x, y);
                 }
             }
@@ -181,19 +181,19 @@ public static partial class Utils
         Console.Clear();
         DrawBoxTop(title);
         foreach (string s in msgLines)
-            Console.WriteLine("│ " + s.PadRight(MenuWidth - 1) + "│");
+            Console.WriteLine("│ " + s.FitToWidth(MenuWidth - 1) + "│");
         DrawBoxBottom();
         if (askPrompt) EnterPrompt();
     }
     public static void DrawBoxTop(string title)
     {
         title = "─ " + title + ' ';
-        Console.WriteLine("╭" + title + new string('─', MenuWidth - title.Length) + "╮ ");
+        Console.WriteLine("╭" + title + new string('─', MenuWidth - title.VisibleLength()) + "╮ ");
     }
     public static void DrawBoxMiddle(string text)
     {
         text = ' ' + text;
-        Console.WriteLine("│" + text.PadRight(MenuWidth) + "│");
+        Console.WriteLine("│" + text.FitToWidth(MenuWidth) + "│");
     }
     public static void DrawBoxBottom()
     {
@@ -201,23 +201,23 @@ public static partial class Utils
     }
     public static void GenerateTable(string title, string[] headers, string[][] rows)
     {
-        int[] columnWidths = headers.Select(h => h.Length).ToArray();
+        int[] columnWidths = headers.Select(h => h.VisibleLength()).ToArray();
 
         for (int i = 0; i < headers.Length; i++)
         {
             foreach (var row in rows)
             {
                 if (row != null && i < row.Length)
-                    columnWidths[i] = Math.Max(columnWidths[i], row[i]?.Length ?? 0);
+                    columnWidths[i] = Math.Max(columnWidths[i], row[i]?.VisibleLength() ?? 0);
             }
         }
 
         int contentWidth = columnWidths.Sum() + (headers.Length * 3) + 1;
-        int titleWidth = Math.Max(contentWidth, title.Length + 3);
+        int titleWidth = Math.Max(contentWidth, title.VisibleLength() + 3);
 
         Console.Clear();
 
-        Console.WriteLine("╭─ " + title + " " + new string('─', titleWidth - title.Length - 5) + "╮");
+        Console.WriteLine("╭─ " + title + " " + new string('─', titleWidth - title.VisibleLength() - 5) + "╮");
 
         Console.Write("│");
         for (int i = 0; i < headers.Length; i++)
@@ -238,6 +238,7 @@ public static partial class Utils
         }
 
         Console.WriteLine("╰" + string.Join("┴", columnWidths.Select(w => new string('─', w + 2))) + "╯");
+        EnterPrompt();
     }
     public static void EnterPrompt(string? msg = null)
     {
@@ -246,7 +247,7 @@ public static partial class Utils
     }
     public static string GetValidString(string title, string msg, int minLength = 3, int? maxLength = null, string pattern = "^.*$", string invalidFormatMsg = "Formato inválido. Tente novamente.")
     {
-        int availableSpace = MenuWidth - msg.Length - BoxH;
+        int availableSpace = MenuWidth - msg.VisibleLength() - BoxH;
         maxLength ??= availableSpace;
         if (minLength < 0)
             throw new ArgumentOutOfRangeException(nameof(minLength), "minLength cannot be negative");
@@ -292,5 +293,16 @@ public static partial class Utils
 
             MsgBox("Aviso", value <= 0 ? "O valor deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
         }
+    }
+
+    public static string ColourStringHex(string text, string hex)
+    {
+        hex = hex.TrimStart('#');
+
+        int r = Convert.ToInt32(hex[..2], 16);
+        int g = Convert.ToInt32(hex[2..4], 16);
+        int b = Convert.ToInt32(hex[4..6], 16);
+
+        return $"\x1b[38;2;{r};{g};{b}m{text}\x1b[0m";
     }
 }
