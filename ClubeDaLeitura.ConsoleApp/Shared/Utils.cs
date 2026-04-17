@@ -20,7 +20,7 @@ public static partial class Utils
             Console.Clear();
             DrawBoxTop(title);
             for (int i = 0; i < options.Length; i++)
-                DrawBoxMiddle(i == selectedIndex ? $"❯ {options[i]}" : $"  {options[i]}");
+                DrawBoxMiddle(i == selectedIndex ? $"{ColourStringHex("❯", Colours.Info)} {options[i]}" : $"  {options[i]}");
             DrawBoxBottom();
             Console.WriteLine("⇅ selecionar | ↲ Confirmar");
             ConsoleKey key = Console.ReadKey(true).Key;
@@ -122,7 +122,7 @@ public static partial class Utils
                 }
                 else
                 {
-                    MsgBox("Aviso", "Data inválida. Tente novamente no formato DD/MM/YYYY.");
+                    MsgBox(ColourStringHex("Aviso", Colours.Warning), "Data inválida. Tente novamente no formato DD/MM/YYYY.");
                     index = 0;
                     Console.SetCursorPosition(0, 0);
                     MsgBox(title, msg + DateTemplate, false);
@@ -263,13 +263,13 @@ public static partial class Utils
             string wordMax = maxLength == 1 ? "letra" : "letras";
 
             if (input.Length == 0 && minLength > 0)
-                MsgBox("Aviso", "Entrada inválida. Insira algum texto.");
+                MsgBox(ColourStringHex("Aviso", Colours.Warning), "Entrada inválida. Insira algum texto.");
             else if (input.Length < minLength)
-                MsgBox("Aviso", $"Este campo deve conter no mínimo {minLength} {wordMin}.");
+                MsgBox(ColourStringHex("Aviso", Colours.Warning), $"Este campo deve conter no mínimo {minLength} {wordMin}.");
             else if (input.Length > maxLength)
-                MsgBox("Aviso", $"Este campo deve conter no máximo {maxLength} {wordMax}.");
+                MsgBox(ColourStringHex("Aviso", Colours.Warning), $"Este campo deve conter no máximo {maxLength} {wordMax}.");
             else if (!Regex.IsMatch(input, pattern))
-                MsgBox("Aviso", invalidFormatMsg);
+                MsgBox(ColourStringHex("Aviso", Colours.Warning), invalidFormatMsg);
             else
                 return input;
         }
@@ -281,7 +281,7 @@ public static partial class Utils
             if (decimal.TryParse(PromptBox(title, msg), out decimal amount) && amount > 0)
                 return amount;
 
-            MsgBox("Aviso", amount <= 0 ? "O preço deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
+            MsgBox(ColourStringHex("Aviso", Colours.Warning), amount <= 0 ? "O preço deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
         }
     }
     public static int GetValidInteger(string title, string msg)
@@ -291,7 +291,7 @@ public static partial class Utils
             if (int.TryParse(PromptBox(title, msg), out int value) && value > 0)
                 return value;
 
-            MsgBox("Aviso", value <= 0 ? "O valor deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
+            MsgBox(ColourStringHex("Aviso", Colours.Warning), value <= 0 ? "O valor deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
         }
     }
 
