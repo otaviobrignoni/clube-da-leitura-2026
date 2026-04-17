@@ -8,6 +8,7 @@ public abstract class BaseUI<T> where T : BaseEntity<T>
         Repository = repository;
     }
     public int RepoCount => Repository.Count();
+    public bool RepoHasAny => RepoCount > 0;
     public abstract void Menu();
     public abstract void Add();
     public abstract void Edit();
