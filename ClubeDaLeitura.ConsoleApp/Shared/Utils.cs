@@ -168,7 +168,7 @@ public static partial class Utils
             else if (keyInfo.Key == ConsoleKey.Enter && index == phoneNumberLength)
             {
                 string phoneString = new(userInput);
-                    Console.SetCursorPosition(0, 0);
+                Console.SetCursorPosition(0, 0);
                 return $"({phoneString[..2]}) {phoneString[2..7]}-{phoneString[7..11]}";
             }
         }
@@ -243,21 +243,31 @@ public static partial class Utils
         Console.WriteLine(msg ?? "Pressione ENTER para continuar…");
         while (Console.ReadKey(true).Key != ConsoleKey.Enter) ;
     }
-    public static string GetValidString(string title, string msg, int minLength = 3)
+    public static string GetValidString(string title, string msg, int minLength = 3, int? maxLength = null)
     {
+        int availableSpace = MenuWidth - msg.Length - BoxH;
+        maxLength ??= availableSpace;
         if (minLength < 0)
             throw new ArgumentOutOfRangeException(nameof(minLength), "minLength cannot be negative");
+        if (minLength > maxLength)
+            throw new ArgumentOutOfRangeException(nameof(maxLength), "maxLength cannot be less than minLength");
+        if (maxLength > availableSpace)
+            throw new ArgumentOutOfRangeException(nameof(maxLength), "maxLength cannot be larger than availableSpace");
 
         while (true)
         {
             string input = PromptBox(title, msg).Trim();
+            string wordMin = minLength == 1 ? "letra" : "letras";
+            string wordMax = maxLength == 1 ? "letra" : "letras";
 
-            if (input.Length >= minLength)
+            if (input.Length == 0 && minLength > 0)
+                MsgBox("Aviso", "Entrada inválida. Por favor, insira algum texto.");
+            else if (input.Length < minLength)
+                MsgBox("Aviso", $"Este campo deve conter no mínimo {minLength} {wordMin}.");
+            else if (input.Length > maxLength)
+                MsgBox("Aviso", $"Este campo deve conter no máximo {maxLength} {wordMax}.");
+            else
                 return input;
-
-            string word = minLength == 1 ? "letra" : "letras";
-
-            MsgBox("Aviso", input.Length == 0 ? "Entrada inválida. Por favor, insira algum texto." : $"Este campo deve conter no mínimo {minLength} {word}.");
         }
     }
     public static decimal GetValidPrice(string title, string msg)
