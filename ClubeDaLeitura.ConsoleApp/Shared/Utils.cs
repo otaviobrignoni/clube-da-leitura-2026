@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace ClubeDaLeitura.ConsoleApp.Shared;
 
@@ -243,7 +244,7 @@ public static partial class Utils
         Console.WriteLine(msg ?? "Pressione ENTER para continuar…");
         while (Console.ReadKey(true).Key != ConsoleKey.Enter) ;
     }
-    public static string GetValidString(string title, string msg, int minLength = 3, int? maxLength = null)
+    public static string GetValidString(string title, string msg, int minLength = 3, int? maxLength = null, string pattern = "^.*$", string invalidFormatMsg = "Formato inválido. Tente novamente.")
     {
         int availableSpace = MenuWidth - msg.Length - BoxH;
         maxLength ??= availableSpace;
@@ -259,13 +260,15 @@ public static partial class Utils
             string input = PromptBox(title, msg).Trim();
             string wordMin = minLength == 1 ? "letra" : "letras";
             string wordMax = maxLength == 1 ? "letra" : "letras";
-
+            
             if (input.Length == 0 && minLength > 0)
-                MsgBox("Aviso", "Entrada inválida. Por favor, insira algum texto.");
+                MsgBox("Aviso", "Entrada inválida. Insira algum texto.");
             else if (input.Length < minLength)
                 MsgBox("Aviso", $"Este campo deve conter no mínimo {minLength} {wordMin}.");
             else if (input.Length > maxLength)
                 MsgBox("Aviso", $"Este campo deve conter no máximo {maxLength} {wordMax}.");
+            else if (!Regex.IsMatch(input, pattern))
+                MsgBox("Aviso", invalidFormatMsg);
             else
                 return input;
         }
