@@ -14,7 +14,7 @@ public abstract class BaseUI<T> where T : BaseEntity<T>
     public abstract void Edit();
     public abstract void Remove();
     public abstract void View();
-    public abstract T Select(List<T>? entities = null);
+    public abstract T Select(string? title = null, List<T>? entities = null);
     protected List<T> GetAvailable(List<T>? entities = null)
     {
         entities ??= [];

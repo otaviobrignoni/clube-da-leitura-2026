@@ -38,19 +38,19 @@ public class BoxUI : BaseUI<Box>
             GetValidTag(title),
             Utils.GetValidString(title, "Cor da caixa: ", pattern: @"^#?[0-9A-Fa-f]{6}$"),
             Utils.GetValidInteger(title, "Dias de empréstimo (padrão = 7): ")));
-        Utils.MsgBox(Utils.ColourStringHex("Info", Colours.Info), Utils.ColourStringHex("✓", Colours.Success) + " Caixa cadastrada com sucesso!");
+        Utils.MsgBox("Sucesso", "Caixa cadastrada com sucesso!", type: MessageType.Success);
     }
     public override void Edit()
     {
         if (!RepoHasAny)
         {
-            Utils.MsgBox(Utils.ColourStringHex("Aviso", Colours.Warning), "Nenhuma caixa cadastrada para editar.");
+            Utils.MsgBox("Aviso", "Nenhuma caixa cadastrada para editar.", type: MessageType.Warning);
             return;
         }
         string title = Utils.ColourStringHex("Editar caixa", Colours.Title);
         string[] options = ["Etiqueta", "Cor", "Dias de empréstimo", "Voltar"];
 
-        Box box = Select();
+        Box box = Select("Selecionar caixa para editar");
         Box editedBox = new(box);
 
         while (true)
@@ -68,9 +68,7 @@ public class BoxUI : BaseUI<Box>
                 case 3:
                     if (!editedBox.Equals(box))
                     {
-                        Utils.MsgBox(
-                            Utils.ColourStringHex("Info", Colours.Info),
-                            $"{Utils.ColourStringHex("✓", Colours.Success)} Caixa editada com sucesso!");
+                        Utils.MsgBox("Sucesso", "Caixa editada com sucesso!", type: MessageType.Success);
                         box.UpdateEntity(editedBox);
                     }
                     return;
@@ -80,22 +78,23 @@ public class BoxUI : BaseUI<Box>
     {
         if (!RepoHasAny)
         {
-            Utils.MsgBox(Utils.ColourStringHex("Aviso", Colours.Warning), "Nenhuma caixa cadastrada para remover.");
+            Utils.MsgBox("Aviso", "Nenhuma caixa cadastrada para remover.", type: MessageType.Warning);
             return;
         }
-        Box box = Select();
-        if (Repository.Remove(box.Id))
-            Utils.MsgBox(
-                Utils.ColourStringHex("Info", Colours.Info),
-                $"{Utils.ColourStringHex("✓", Colours.Success)} Caixa removida com sucesso!");
-        else Utils.MsgBox(
-            Utils.ColourStringHex("Erro", Colours.Error),
-            $"{Utils.ColourStringHex("✗", Colours.Error)}) Erro ao remover o caixa. Tente novamente.");
+        Box box = Select("Selecionar caixa para remover");
+        if (box.HasComicBook)
+        {
+            Utils.MsgBox("Aviso", "Não é possível remover esta caixa porque contém revistas. Remova as revistas primeiro.", type: MessageType.Warning);
+            return;
+        }
+        if (Repository.Remove(box.Id)) Utils.MsgBox("Sucesso", "Caixa removida com sucesso!", type: MessageType.Success);
+        else Utils.MsgBox("Erro", "Erro ao remover o caixa. Tente novamente.", type: MessageType.Error);
     }
 
-    public override Box Select(List<Box>? entities = null)
+    public override Box Select(string? title = null, List<Box>? entities = null)
     {
-        string title = Utils.ColourStringHex("Selecionar caixa", Colours.Title);
+        title ??= "Selecionar caixa";
+        title = Utils.ColourStringHex(title, Colours.Title);
         var availableBoxes = GetAvailable(entities);
         string[] options = availableBoxes.Select(b => $"{Utils.ColourStringHex(b.Tag, b.Colour)} ID: {b.Id}").ToArray();
         return availableBoxes[Utils.Menu(title, options)];
@@ -105,15 +104,14 @@ public class BoxUI : BaseUI<Box>
     {
         if (!RepoHasAny)
         {
-            Utils.MsgBox(Utils.ColourStringHex("Info", Colours.Info), "Nenhuma caixa cadastrada.");
+            Utils.MsgBox("Info", "Nenhuma caixa cadastrada.", type: MessageType.Info);
             return;
         }
         string title = Utils.ColourStringHex("Caixas", Colours.Title);
-        string[] categories = ["Etiqueta", "Dias de empréstimo"];
         List<string[]> boxes = [];
         foreach (Box b in Repository.GetAll())
             boxes.Add([$"{Utils.ColourStringHex(b.Tag, b.Colour)}", $"{b.LoanDays}"]);
-        Utils.GenerateTable(title, categories, boxes.ToArray());
+        Utils.GenerateTable(title, Box.Categories, boxes.ToArray());
     }
     public string GetValidTag(string title, List<Box>? ignoredBoxes = null)
     {
@@ -121,7 +119,7 @@ public class BoxUI : BaseUI<Box>
         {
             string tag = Utils.GetValidString(title, "Etiqueta da caixa: ", maxLength: 50);
             if (GetAvailable(ignoredBoxes).Any(b => b.Tag == tag))
-                Utils.MsgBox(Utils.ColourStringHex("Aviso", Colours.Warning), "Já existe uma caixa com essa etiqueta.");
+                Utils.MsgBox("Aviso", "Já existe uma caixa com essa etiqueta.", type: MessageType.Warning);
             else return tag;
         }
     }

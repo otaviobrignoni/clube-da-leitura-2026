@@ -16,6 +16,8 @@ class Program
 
         BoxRepo boxRepo = new();
         BoxUI bUI = new(boxRepo);
+        ComicBookRepo comicBookRepo = new();
+        ComicBookUI cUI = new(bUI, comicBookRepo);
 
         while (true)
             switch (Utils.Menu(title, options))
@@ -24,6 +26,7 @@ class Program
                     bUI.Menu();
                     break;
                 case 1:
+                    cUI.Menu();
                     break;
                 case 2:
                     break;
