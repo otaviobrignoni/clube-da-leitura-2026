@@ -274,16 +274,6 @@ public static partial class Utils
                 return input;
         }
     }
-    public static decimal GetValidPrice(string title, string msg)
-    {
-        while (true)
-        {
-            if (decimal.TryParse(PromptBox(title, msg), out decimal amount) && amount > 0)
-                return amount;
-
-            MsgBox(ColourStringHex("Aviso", Colours.Warning), amount <= 0 ? "O preço deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.");
-        }
-    }
     public static int GetValidInteger(string title, string msg)
     {
         while (true)
