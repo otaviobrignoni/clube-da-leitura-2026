@@ -139,7 +139,7 @@ public static partial class Utils
         char[] userInput = new char[phoneNumberLength];
         int[] templatePos = [0, 2, 7];
         int index = 0;
-        int x = msg.Length + BoxH;
+        int x = msg.VisibleLength() + BoxH;
         int y = BoxV;
         Console.SetCursorPosition(x, y);
         while (true)
