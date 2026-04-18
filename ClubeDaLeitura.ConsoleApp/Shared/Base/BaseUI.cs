@@ -15,9 +15,9 @@ public abstract class BaseUI<T> where T : BaseEntity<T>
     public abstract void Remove();
     public abstract void View();
     public abstract T Select(string? title = null, List<T>? entities = null);
-    protected List<T> GetAvailable(IEnumerable<T>? entities = null)
+    protected List<T> GetAvailable(IEnumerable<T>? ignoredEntities = null)
     {
-        entities ??= [];
-        return Repository.GetAll().Where(e => !entities.Contains(e)).ToList();
+        ignoredEntities ??= [];
+        return Repository.GetAll().Where(e => !ignoredEntities.Contains(e)).ToList();
     }
 }
