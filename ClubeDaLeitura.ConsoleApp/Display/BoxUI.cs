@@ -1,4 +1,4 @@
-using ClubeDaLeitura.ConsoleApp.Domain;
+using ClubeDaLeitura.ConsoleApp.Domain.BoxModule;
 using ClubeDaLeitura.ConsoleApp.Shared;
 using ClubeDaLeitura.ConsoleApp.Shared.Base;
 

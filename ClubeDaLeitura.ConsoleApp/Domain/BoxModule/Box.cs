@@ -1,6 +1,6 @@
 using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
-namespace ClubeDaLeitura.ConsoleApp.Domain;
+namespace ClubeDaLeitura.ConsoleApp.Domain.BoxModule;
 
 public class Box : BaseEntity<Box>
 {
