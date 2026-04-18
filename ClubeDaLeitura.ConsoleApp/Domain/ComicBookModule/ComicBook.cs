@@ -9,6 +9,8 @@ public class ComicBook : BaseEntity<ComicBook>
     public int Edition;
     public DateOnly ReleaseDate;
     public Box Box;
+    public ComicBookStatus CurrentStatus = ComicBookStatus.Available;
+    public bool IsAvailable => CurrentStatus == ComicBookStatus.Available;
     public static readonly string[] Categories = ["Título", "Edição", "Data de publicação", "Caixa"];
     public ComicBook(string title, int edition, DateOnly releaseDate, Box box)
     {
@@ -18,6 +20,13 @@ public class ComicBook : BaseEntity<ComicBook>
         Box = box;
     }
     public ComicBook(ComicBook comicBook) : this(comicBook.Title, comicBook.Edition, comicBook.ReleaseDate, comicBook.Box) { }
+    public void ChangeStatus()
+    {
+        if (CurrentStatus == ComicBookStatus.Available)
+            CurrentStatus = ComicBookStatus.Loaned;
+        else if(CurrentStatus == ComicBookStatus.Loaned)
+            CurrentStatus = ComicBookStatus.Available;
+    }
     public override void UpdateEntity(ComicBook updatedEntity)
     {
         if (Box != updatedEntity.Box)
@@ -39,4 +48,10 @@ public class ComicBook : BaseEntity<ComicBook>
             return false;
         return true;
     }
+}
+public enum ComicBookStatus
+{
+    Available,
+    Loaned,
+    Reserved
 }
