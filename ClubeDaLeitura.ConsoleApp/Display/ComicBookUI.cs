@@ -97,7 +97,7 @@ public class ComicBookUI : BaseUI<ComicBook>
         ComicBook comicBook = Select("Selecionar revista para remover");
         comicBook.Box.RemoveComicBook(comicBook.Id);
         if (Repository.Remove(comicBook.Id)) Utils.MsgBox("Sucesso", "Revista removida com sucesso!", type: MessageType.Success);
-        else Utils.MsgBox("Erro", "Erro ao remover o revista. Tente novamente.", type: MessageType.Error);
+        else Utils.MsgBox("Erro", "Erro ao remover a revista. Tente novamente.", type: MessageType.Error);
     }
 
     public override ComicBook Select(string? title = null, List<ComicBook>? entities = null)
