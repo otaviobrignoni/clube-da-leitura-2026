@@ -15,9 +15,12 @@ class Program
         string[] options = ["Caixas", "Revistas", "Amigos", "Empréstimos", "Sair"];
 
         BoxRepo boxRepo = new();
-        BoxUI bUI = new(boxRepo);
         ComicBookRepo comicBookRepo = new();
+        FriendRepo friendRepo = new();
+
+        BoxUI bUI = new(boxRepo);
         ComicBookUI cUI = new(bUI, comicBookRepo);
+        FriendUI fUI = new(friendRepo);
 
         while (true)
             switch (Utils.Menu(title, options))
@@ -29,6 +32,7 @@ class Program
                     cUI.Menu();
                     break;
                 case 2:
+                    fUI.Menu();
                     break;
                 case 3:
                     break;

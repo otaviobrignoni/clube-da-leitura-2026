@@ -11,6 +11,7 @@
     <Folder Include="Display\" />
     <Folder Include="Domain\BoxModule\" />
     <Folder Include="Domain\ComicBookModule\" />
+    <Folder Include="Domain\FriendModule\" />
     <Folder Include="Infrastructure\" />
     <Folder Include="Shared\" />
     <Folder Include="Shared\Base\" />
