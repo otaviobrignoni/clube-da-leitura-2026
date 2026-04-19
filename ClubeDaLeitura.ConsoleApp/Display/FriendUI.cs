@@ -1,4 +1,5 @@
 using ClubeDaLeitura.ConsoleApp.Domain.FriendModule;
+using ClubeDaLeitura.ConsoleApp.Domain.LoanModule;
 using ClubeDaLeitura.ConsoleApp.Shared;
 using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
@@ -10,7 +11,7 @@ public class FriendUI : BaseUI<Friend>
     public override void Menu()
     {
         string title = Utils.ColourStringHex("Gerenciar amigos", Colours.Title);
-        string[] options = ["Cadastrar amigo", "Editar amigo", "Remover amigo", "Visualizar amigos", "Voltar"];
+        string[] options = ["Cadastrar amigo", "Editar amigo", "Remover amigo", "Visualizar amigos", "Visualizar empréstimos de um amigo", "Voltar"];
         while (true)
             switch (Utils.Menu(title, options))
             {
@@ -27,6 +28,9 @@ public class FriendUI : BaseUI<Friend>
                     View();
                     break;
                 case 4:
+                    ViewLoans();
+                    break;
+                case 5:
                     return;
             }
     }
@@ -61,7 +65,7 @@ public class FriendUI : BaseUI<Friend>
                     editedFriend.PhoneNumber = phoneNumber;
                     break;
                 case 1:
-                    editedFriend.ParentName = Utils.GetValidString(title, "Nome do responsável", minLength: 3, maxLength: 100);
+                    editedFriend.ParentName = Utils.GetValidString(title, "Nome do responsável: ", minLength: 3, maxLength: 100);
                     break;
                 case 2:
                     if (!editedFriend.Equals(friend))
@@ -81,6 +85,11 @@ public class FriendUI : BaseUI<Friend>
             return;
         }
         Friend friend = Select("Selecionar amigo para remover");
+        if (friend.HasLoan)
+        {
+            Utils.MsgBox("Aviso", "Não é possível remover amigo com empréstimos vinculados.", type: MessageType.Warning);
+            return;
+        }
         if (Repository.Remove(friend.Id)) Utils.MsgBox("Sucesso", "Amigo removido com sucesso!", type: MessageType.Success);
         else Utils.MsgBox("Erro", "Erro ao remover amigo. Tente novamente.", type: MessageType.Error);
     }
@@ -105,15 +114,37 @@ public class FriendUI : BaseUI<Friend>
             friends.Add([f.Name, f.ParentName, f.PhoneNumber]);
         Utils.GenerateTable(title, Friend.Categories, friends.ToArray());
     }
+    public void ViewLoans()
+    {
+        if (!RepoHasAny)
+        {
+            Utils.MsgBox("Info", "Nenhum amigo cadastrado.", type: MessageType.Info);
+            return;
+        }
+        if (Repository.GetAll().Where(f => f.HasLoan).ToList().Count < 1)
+        {
+            Utils.MsgBox("Info", "Nenhum amigo fez empréstimos.", type: MessageType.Info);
+            return;
+        }
+        Friend friend = Select(entities: Repository.GetAll().Where(f => !f.HasLoan).ToList());
+        string title = Utils.ColourStringHex($"Empréstimos de {friend.Name}", Colours.Title);
+        List<string[]> loans = [];
+        var orderedLoans = friend.Loans.OrderBy(l => l.StatusOrder)
+                                       .ThenBy(l => l.OpenedDate);
+        foreach (Loan l in orderedLoans)
+            loans.Add([$"{l.ComicBook.Title} N°{l.ComicBook.Edition}", $"{l.OpenedDate}", $"{l.ReturnDate}", l.ReturnedDate == null ? "Não" : $"{l.ReturnedDate}", Utils.ColourStringHex(l.StatusString, l.StatusColour)]);
+        Utils.GenerateTable(title, Loan.Categories[1..], loans.ToArray());
+    }
 
     public (string, string) GetValidNameAndPhoneNumber(string title, List<Friend>? ignoredFriends = null)
     {
         while (true)
         {
-            string name = Utils.GetValidString(title, "Nome do amigo", minLength: 3, maxLength: 100);
-            string phoneNumber = Utils.PhoneNumberPromptBox(title, "Telefone do amigo");
+            // maxLength = 100 n funciona no momento, então vai ser o espaço máximo disponível dentro da PromptBox
+            string name = Utils.GetValidString(title, "Nome do amigo: ", minLength: 3);
+            string phoneNumber = Utils.PhoneNumberPromptBox(title, "Telefone do amigo: ");
             if (GetAvailable(ignoredFriends).Any(f => f.Name == name && f.PhoneNumber == phoneNumber))
-                Utils.MsgBox("Aviso", "Já existe um amigo com esse nome e telefone", type: MessageType.Warning);
+                Utils.MsgBox("Aviso", "Já existe um amigo com esse nome e telefone.", type: MessageType.Warning);
             else return (name, phoneNumber);
         }
 
