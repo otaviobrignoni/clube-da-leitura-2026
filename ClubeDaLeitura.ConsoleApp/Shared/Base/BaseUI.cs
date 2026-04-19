@@ -2,7 +2,7 @@ namespace ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 public abstract class BaseUI<T> where T : BaseEntity<T>
 {
-    protected IRepository<T> Repository;
+    public IRepository<T> Repository;
     protected BaseUI(IRepository<T> repository)
     {
         Repository = repository;
