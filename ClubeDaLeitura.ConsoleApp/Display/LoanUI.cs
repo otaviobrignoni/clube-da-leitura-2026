@@ -40,15 +40,27 @@ public class LoanUI
     {
         if (!ComicBookUI.RepoHasAny)
         {
-            Utils.MsgBox("Aviso", "Nenhuma revista cadastrada para emprestar", type: MessageType.Warning);
+            Utils.MsgBox("Aviso", "Nenhuma revista cadastrada para emprestar.", type: MessageType.Warning);
             return;
         }
         if (!FriendUI.RepoHasAny)
         {
-            Utils.MsgBox("Aviso", "Nenhum amigo cadastrado para emprestar uma revista", type: MessageType.Warning);
+            Utils.MsgBox("Aviso", "Nenhum amigo cadastrado para emprestar uma revista.", type: MessageType.Warning);
             return;
         }
-        Loan loan = new(SelectValidFriend(), SelectValidComicBook());
+        var validComicBooks = ComicBookUI.Repository.GetAll().Where(cb => cb.IsAvailable).ToList();
+        if (validComicBooks.Count < 1)
+        {
+            Utils.MsgBox("Aviso", "Nenhuma revista está disponível.", type: MessageType.Warning);
+            return;
+        }
+        var validFriends = FriendUI.Repository.GetAll().Where(f => !f.HasOpenLoan).ToList();
+        if (validFriends.Count < 1)
+        {
+            Utils.MsgBox("Aviso", "Todos os amigos cadastrados já têm um empréstimo aberto.", type: MessageType.Warning);
+            return;
+        }
+        Loan loan = new(SelectValidFriend(validFriends), SelectValidComicBook(validComicBooks));
         loan.Friend.AddLoan(loan);
         loan.ComicBook.ChangeStatus();
         Repository.Add(loan);
@@ -89,30 +101,12 @@ public class LoanUI
             loans.Add([l.Friend.Name, $"{l.ComicBook.Title} N°{l.ComicBook.Edition}", $"{l.OpenedDate}", $"{l.ReturnDate}", l.ReturnedDate == null ? "Não" : $"{l.ReturnedDate}", Utils.ColourStringHex(l.StatusString, l.StatusColour)]);
         Utils.GenerateTable(title, Loan.Categories, loans.ToArray());
     }
-    public Friend SelectValidFriend()
+    public Friend SelectValidFriend(List<Friend> validFriends)
     {
-        while (true)
-        {
-            Friend friend = FriendUI.Select("Selecionar amigo fazendo empréstimo");
-            if (friend.HasOpenLoan)
-            {
-                Utils.MsgBox("Aviso", "Esse amigo tem um empréstimo aberto. Conclua-o para fazer outro.", type: MessageType.Warning);
-                continue;
-            }
-            return friend;
-        }
+        return FriendUI.Select("Selecionar amigo fazendo empréstimo", validFriends);
     }
-    public ComicBook SelectValidComicBook()
+    public ComicBook SelectValidComicBook(List<ComicBook> validComicBooks)
     {
-        while (true)
-        {
-            ComicBook comicBook = ComicBookUI.Select("Selecionar revista sendo emprestada");
-            if (!comicBook.IsAvailable)
-            {
-                Utils.MsgBox("Aviso", "Essa revista não está disponível.", type: MessageType.Warning);
-                continue;
-            }
-            return comicBook;
-        }
+        return ComicBookUI.Select("Selecionar revista sendo emprestada", validComicBooks);
     }
 }
