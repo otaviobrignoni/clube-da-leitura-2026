@@ -38,7 +38,7 @@ public class FriendUI : BaseUI<Friend>
     {
         string title = Utils.ColourStringHex("Cadastrar amigo", Colours.Title);
         var (name, phoneNumber) = GetValidNameAndPhoneNumber(title);
-        Repository.Add(new Friend(name, Utils.GetValidString(title, "Nome do responsável", minLength: 3, maxLength: 100), phoneNumber));
+        Repository.Add(new Friend(name, Utils.GetValidString(title, "Nome do responsável: ", minLength: 3), phoneNumber));
         Utils.MsgBox("Sucesso", "Amigo cadastrado com sucesso!", type: MessageType.Success);
     }
 
