@@ -9,11 +9,20 @@ public class Loan : BaseEntity<Loan>
 {
     public Friend Friend;
     public ComicBook ComicBook;
-    public DateTime OpenedDate;
-    public DateTime ReturnDate;
-    public DateTime? ReturnedDate = null;
-    public LoanStatus CurrentStatus;
-    public bool IsLate => DateTime.Now > ReturnDate && CurrentStatus != LoanStatus.Done && CurrentStatus != LoanStatus.DoneLate;
+    public DateOnly OpenedDate;
+    public DateOnly ReturnDate;
+    public DateOnly? ReturnedDate = null;
+    private LoanStatus Status;
+    public LoanStatus CurrentStatus
+    {
+        get
+        {
+            if (Status == LoanStatus.Open && DateOnly.FromDateTime(DateTime.Now) > ReturnDate)
+                return LoanStatus.Late;
+            return Status;
+        }
+        set => Status = value;
+    }
     public string StatusString => CurrentStatus switch
     {
         LoanStatus.Open => "Aberto",
@@ -43,15 +52,14 @@ public class Loan : BaseEntity<Loan>
     {
         Friend = friend;
         ComicBook = comicBook;
-        OpenedDate = DateTime.Now;
-        ReturnDate = DateTime.Now.AddDays(comicBook.Box.LoanDays);
+        OpenedDate = DateOnly.FromDateTime(DateTime.Now);
+        ReturnDate = OpenedDate.AddDays(comicBook.Box.LoanDays);
         CurrentStatus = LoanStatus.Open;
     }
     public void ReturnComicBook()
     {
-        if (!IsLate) CurrentStatus = LoanStatus.Done;
-        else CurrentStatus = LoanStatus.DoneLate;
-        ReturnedDate = DateTime.Now;
+        CurrentStatus = CurrentStatus == LoanStatus.Late ? LoanStatus.DoneLate : LoanStatus.Done;
+        ReturnedDate = DateOnly.FromDateTime(DateTime.Now);
         ComicBook.ChangeStatus();
     }
 

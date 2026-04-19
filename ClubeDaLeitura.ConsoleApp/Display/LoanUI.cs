@@ -2,7 +2,6 @@ using ClubeDaLeitura.ConsoleApp.Domain.ComicBookModule;
 using ClubeDaLeitura.ConsoleApp.Domain.FriendModule;
 using ClubeDaLeitura.ConsoleApp.Domain.LoanModule;
 using ClubeDaLeitura.ConsoleApp.Shared;
-using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 namespace ClubeDaLeitura.ConsoleApp.Display;
 
@@ -56,7 +55,7 @@ public class LoanUI
     }
     public void Return()
     {
-        var openLoans = Repository.GetAll().Where(l => l.CurrentStatus == LoanStatus.Done && l.CurrentStatus == LoanStatus.DoneLate).ToList();
+        var openLoans = Repository.GetAll().Where(l => l.CurrentStatus == LoanStatus.Open || l.CurrentStatus == LoanStatus.Late).ToList();
         if (openLoans.Count == 0)
         {
             Utils.MsgBox("Info", "Não há revistas para retornar.", type: MessageType.Info);
@@ -66,12 +65,11 @@ public class LoanUI
         loan.ReturnComicBook();
     }
 
-    public Loan Select(string? title = null, List<Loan>? ignoredLoans = null)
+    public Loan Select(string? title = null, List<Loan>? availableLoans = null)
     {
         title ??= "Selecionar empréstimo";
         title = Utils.ColourStringHex(title, Colours.Title);
-        ignoredLoans ??= [];
-        var availableLoans = Repository.GetAll().Where(e => !ignoredLoans.Contains(e)).ToList();
+        availableLoans ??= Repository.GetAll().ToList();
         string[] options = availableLoans.Select(l => $"{l.Friend.Name}, {l.ComicBook.Title} N°{l.ComicBook.Edition}, Status: {Utils.ColourStringHex(l.StatusString, l.StatusColour)}").ToArray();
         return availableLoans[Utils.Menu(title, options)];
     }
