@@ -7,4 +7,5 @@ public static class Colours
     public const string Warning = "#fcd965";
     public const string Error = "#e25858";
     public const string Title = "#78eeea";
+    public const string White = "#ffffff";
 }
