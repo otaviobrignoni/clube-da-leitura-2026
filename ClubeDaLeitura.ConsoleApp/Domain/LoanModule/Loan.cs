@@ -33,10 +33,10 @@ public class Loan : BaseEntity<Loan>
     };
     public string StatusColour => CurrentStatus switch
     {
-        LoanStatus.Open => "#8ea9f1",
-        LoanStatus.Done => "#7eee91",
-        LoanStatus.Late => "#ff7272",
-        LoanStatus.DoneLate => "#ffcd82",
+        LoanStatus.Open => Colours.LightBlue,
+        LoanStatus.Done => Colours.LightGreen,
+        LoanStatus.Late => Colours.LightRed,
+        LoanStatus.DoneLate => Colours.LightYellow,
         _ => Colours.White
     };
     public int StatusOrder => CurrentStatus switch

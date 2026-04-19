@@ -124,7 +124,7 @@ public class ComicBookUI : BaseUI<ComicBook>
         string title = Utils.ColourStringHex("Revistas", Colours.Title);
         List<string[]> comicBooks = [];
         foreach (ComicBook cb in Repository.GetAll())
-            comicBooks.Add([cb.Title, $"{cb.Edition}", $"{cb.ReleaseDate:dd/MM/yyyy}", $"{Utils.ColourStringHex(cb.Box.Tag, cb.Box.Colour)}"]);
+            comicBooks.Add([cb.Title, $"{cb.Edition}", $"{cb.ReleaseDate:dd/MM/yyyy}", $"{Utils.ColourStringHex(cb.Box.Tag, cb.Box.Colour)}", Utils.ColourStringHex(cb.StatusString, cb.StatusColour)]);
         Utils.GenerateTable(title, ComicBook.Categories, comicBooks.ToArray());
     }
 
