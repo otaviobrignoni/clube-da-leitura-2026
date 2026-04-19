@@ -95,6 +95,11 @@ public class ComicBookUI : BaseUI<ComicBook>
             return;
         }
         ComicBook comicBook = Select("Selecionar revista para remover");
+        if (!comicBook.IsAvailable)
+        {
+            Utils.MsgBox("Aviso", "Não é possível remover uma revista emprestada.", type: MessageType.Warning);
+            return;
+        }
         comicBook.Box.RemoveComicBook(comicBook.Id);
         if (Repository.Remove(comicBook.Id)) Utils.MsgBox("Sucesso", "Revista removida com sucesso!", type: MessageType.Success);
         else Utils.MsgBox("Erro", "Erro ao remover a revista. Tente novamente.", type: MessageType.Error);
