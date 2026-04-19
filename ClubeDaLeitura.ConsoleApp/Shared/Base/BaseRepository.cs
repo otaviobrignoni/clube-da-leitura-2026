@@ -1,14 +1,11 @@
 namespace ClubeDaLeitura.ConsoleApp.Shared.Base;
 
-public class BaseRepository<T> where T : BaseEntity<T>
+public class BaseRepository<T> : IRepository<T> where T : BaseEntity<T>
 {
     protected readonly Dictionary<Guid, T> Entities = [];
     public void Add(T entity)
     {
-        Guid id;
-        do id = Guid.NewGuid();
-        while (Entities.Any(e => e.Key == id));
-        entity.Id = id;
+        entity.Id = Guid.NewGuid();
         Entities.Add(entity.Id, entity);
     }
     public bool Edit(Guid id, T updatedEntity)
