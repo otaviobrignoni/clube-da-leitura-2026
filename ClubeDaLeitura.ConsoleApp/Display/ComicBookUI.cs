@@ -118,7 +118,7 @@ public class ComicBookUI : BaseUI<ComicBook>
         }
         string title = Utils.ColourStringHex("Revistas", Colours.Title);
         List<string[]> comicBooks = [];
-        foreach(ComicBook cb in Repository.GetAll())
+        foreach (ComicBook cb in Repository.GetAll())
             comicBooks.Add([cb.Title, $"{cb.Edition}", $"{cb.ReleaseDate:dd/MM/yyyy}", $"{Utils.ColourStringHex(cb.Box.Tag, cb.Box.Colour)}"]);
         Utils.GenerateTable(title, ComicBook.Categories, comicBooks.ToArray());
     }
@@ -126,8 +126,9 @@ public class ComicBookUI : BaseUI<ComicBook>
     public (string, int) GetValidTitleAndEdition(string title, List<ComicBook>? ignoredComicBooks = null)
     {
         while (true)
-        {
-            string comicBookTitle = Utils.GetValidString(title, "Título da revista: ", minLength: 2, maxLength: 100);
+        { 
+            // maxLength = 100 n funciona no momento, então vai ser o espaço máximo disponível dentro da PromptBox
+            string comicBookTitle = Utils.GetValidString(title, "Título da revista: ", minLength: 2);
             int edition = Utils.GetValidInteger(title, "Edição da revista: ");
             if (GetAvailable(ignoredComicBooks).Any(cb => cb.Title == comicBookTitle && cb.Edition == edition))
                 Utils.MsgBox("Aviso", "Já existe uma revista com esse título e edição", type: MessageType.Warning);
