@@ -2,7 +2,7 @@ namespace ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 public abstract class BaseUI<T> where T : BaseEntity<T>
 {
-    public IRepository<T> Repository;
+    public IRepository<T> Repository { get; }
     protected BaseUI(IRepository<T> repository)
     {
         Repository = repository;
@@ -14,7 +14,7 @@ public abstract class BaseUI<T> where T : BaseEntity<T>
     public abstract void Edit();
     public abstract void Remove();
     public abstract void View();
-    public abstract T Select(string? title = null, List<T>? entities = null);
+    public abstract T Select(string? title = null, List<T>? ignoredEntities = null);
     protected List<T> GetAvailable(IEnumerable<T>? ignoredEntities = null)
     {
         ignoredEntities ??= [];

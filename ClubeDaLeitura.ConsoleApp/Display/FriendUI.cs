@@ -60,7 +60,7 @@ public class FriendUI : BaseUI<Friend>
             switch (Utils.Menu(title, options))
             {
                 case 0:
-                    var (name, phoneNumber) = GetValidNameAndPhoneNumber(title);
+                    var (name, phoneNumber) = GetValidNameAndPhoneNumber(title, [friend]);
                     editedFriend.Name = name;
                     editedFriend.PhoneNumber = phoneNumber;
                     break;
@@ -93,11 +93,11 @@ public class FriendUI : BaseUI<Friend>
         if (Repository.Remove(friend.Id)) Utils.MsgBox("Sucesso", "Amigo removido com sucesso!", type: MessageType.Success);
         else Utils.MsgBox("Erro", "Erro ao remover amigo. Tente novamente.", type: MessageType.Error);
     }
-    public override Friend Select(string? title = null, List<Friend>? entities = null)
+    public override Friend Select(string? title = null, List<Friend>? ignoredFriends = null)
     {
         title ??= "Selecionar amigo";
         title = Utils.ColourStringHex(title, Colours.Title);
-        var availableFriends = GetAvailable(entities);
+        var availableFriends = GetAvailable(ignoredFriends);
         string[] options = availableFriends.Select(f => $"{f.Name}, ID: {f.Id}").ToArray();
         return availableFriends[Utils.Menu(title, options)];
     }
@@ -126,7 +126,7 @@ public class FriendUI : BaseUI<Friend>
             Utils.MsgBox("Info", "Nenhum amigo fez empréstimos.", type: MessageType.Info);
             return;
         }
-        Friend friend = Select(entities: Repository.GetAll().Where(f => !f.HasLoan).ToList());
+        Friend friend = Select(ignoredFriends: Repository.GetAll().Where(f => !f.HasLoan).ToList());
         string title = Utils.ColourStringHex($"Empréstimos de {friend.Name}", Colours.Title);
         List<string[]> loans = [];
         var orderedLoans = friend.Loans.OrderBy(l => l.StatusOrder)

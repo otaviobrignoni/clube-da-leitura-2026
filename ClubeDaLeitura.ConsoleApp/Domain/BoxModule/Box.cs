@@ -5,10 +5,10 @@ namespace ClubeDaLeitura.ConsoleApp.Domain.BoxModule;
 
 public class Box : BaseEntity<Box>
 {
-    public string Tag = string.Empty;
-    public string Colour = string.Empty;
-    public int LoanDays = 7;
-    public HashSet<ComicBook> ComicBooks = [];
+    public string Tag { get; internal set; } = string.Empty;
+    public string Colour { get; internal set; } = string.Empty;
+    public int LoanDays { get; internal set; } = 7;
+    public HashSet<ComicBook> ComicBooks { get; } = [];
     public static readonly string[] Categories = ["Etiqueta", "Dias de empréstimo"];
     public Box(string tag, string colour, int loanDays)
     {
@@ -29,19 +29,18 @@ public class Box : BaseEntity<Box>
         if (comicBook is null) return false;
         return ComicBooks.Remove(comicBook);
     }
-    public override bool Equals(Box entity)
+    public override void UpdateEntity(Box updatedBox)
     {
-        if (entity.Tag != Tag
-            || entity.Colour != Colour
-            || entity.LoanDays != LoanDays)
+        Tag = updatedBox.Tag;
+        Colour = updatedBox.Colour;
+        LoanDays = updatedBox.LoanDays;
+    }
+    public override bool Equals(Box box)
+    {
+        if (box.Tag != Tag
+            || box.Colour != Colour
+            || box.LoanDays != LoanDays)
             return false;
         return true;
-    }
-
-    public override void UpdateEntity(Box updatedEntity)
-    {
-        Tag = updatedEntity.Tag;
-        Colour = updatedEntity.Colour;
-        LoanDays = updatedEntity.LoanDays;
     }
 }

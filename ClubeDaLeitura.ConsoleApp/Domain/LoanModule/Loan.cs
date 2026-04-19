@@ -7,11 +7,11 @@ namespace ClubeDaLeitura.ConsoleApp.Domain.LoanModule;
 
 public class Loan : BaseEntity<Loan>
 {
-    public Friend Friend;
-    public ComicBook ComicBook;
-    public DateOnly OpenedDate;
-    public DateOnly ReturnDate;
-    public DateOnly? ReturnedDate = null;
+    public Friend Friend { get; internal set; } = null!;
+    public ComicBook ComicBook { get; internal set; } = null!;
+    public DateOnly OpenedDate { get; private set; }
+    public DateOnly ReturnDate { get; private set; }
+    public DateOnly? ReturnedDate { get; private set; }
     private LoanStatus Status;
     public LoanStatus CurrentStatus
     {
@@ -62,19 +62,18 @@ public class Loan : BaseEntity<Loan>
         ReturnedDate = DateOnly.FromDateTime(DateTime.Now);
         ComicBook.ChangeStatus();
     }
-
-    public override bool Equals(Loan entity)
+    public override void UpdateEntity(Loan updatedLoan)
     {
-        if (entity.Friend != Friend
-            || entity.ComicBook != ComicBook
-            || entity.CurrentStatus != CurrentStatus)
+        Friend = updatedLoan.Friend;
+        ComicBook = updatedLoan.ComicBook;
+        CurrentStatus = updatedLoan.CurrentStatus;
+    }
+    public override bool Equals(Loan loan)
+    {
+        if (loan.Friend != Friend
+            || loan.ComicBook != ComicBook
+            || loan.CurrentStatus != CurrentStatus)
             return false;
         return true;
-    }
-    public override void UpdateEntity(Loan updatedEntity)
-    {
-        Friend = updatedEntity.Friend;
-        ComicBook = updatedEntity.ComicBook;
-        CurrentStatus = updatedEntity.CurrentStatus;
     }
 }

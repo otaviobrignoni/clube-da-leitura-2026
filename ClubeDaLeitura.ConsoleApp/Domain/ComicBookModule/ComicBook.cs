@@ -5,11 +5,11 @@ namespace ClubeDaLeitura.ConsoleApp.Domain.ComicBookModule;
 
 public class ComicBook : BaseEntity<ComicBook>
 {
-    public string Title = string.Empty;
-    public int Edition;
-    public DateOnly ReleaseDate;
-    public Box Box;
-    public ComicBookStatus CurrentStatus = ComicBookStatus.Available;
+    public string Title { get; internal set; } = string.Empty;
+    public int Edition { get; internal set; }
+    public DateOnly ReleaseDate { get; internal set; }
+    public Box Box { get; internal set; }
+    public ComicBookStatus CurrentStatus { get; internal set; } = ComicBookStatus.Available;
     public bool IsAvailable => CurrentStatus == ComicBookStatus.Available;
     public static readonly string[] Categories = ["Título", "Edição", "Data de publicação", "Caixa"];
     public ComicBook(string title, int edition, DateOnly releaseDate, Box box)
@@ -27,31 +27,25 @@ public class ComicBook : BaseEntity<ComicBook>
         else if(CurrentStatus == ComicBookStatus.Loaned)
             CurrentStatus = ComicBookStatus.Available;
     }
-    public override void UpdateEntity(ComicBook updatedEntity)
+    public override void UpdateEntity(ComicBook updatedComicBook)
     {
-        if (Box != updatedEntity.Box)
+        if (Box != updatedComicBook.Box)
         {
             Box.RemoveComicBook(Id);
-            updatedEntity.Box.AddComicBook(this);
-            Box = updatedEntity.Box;
+            updatedComicBook.Box.AddComicBook(this);
+            Box = updatedComicBook.Box;
         }
-        Title = updatedEntity.Title;
-        Edition = updatedEntity.Edition;
-        ReleaseDate = updatedEntity.ReleaseDate;
+        Title = updatedComicBook.Title;
+        Edition = updatedComicBook.Edition;
+        ReleaseDate = updatedComicBook.ReleaseDate;
     }
-    public override bool Equals(ComicBook entity)
+    public override bool Equals(ComicBook comicBook)
     {
-        if (entity.Title != Title
-            || entity.Edition != Edition
-            || entity.ReleaseDate != ReleaseDate
-            || entity.Box != Box)
+        if (comicBook.Title != Title
+            || comicBook.Edition != Edition
+            || comicBook.ReleaseDate != ReleaseDate
+            || comicBook.Box != Box)
             return false;
         return true;
     }
-}
-public enum ComicBookStatus
-{
-    Available,
-    Loaned,
-    Reserved
 }

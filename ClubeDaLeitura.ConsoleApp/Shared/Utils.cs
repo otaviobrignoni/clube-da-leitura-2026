@@ -301,10 +301,10 @@ public static partial class Utils
     {
         while (true)
         {
-            if (int.TryParse(PromptBox(title, msg), out int value) && value > 0)
+            bool valid = int.TryParse(PromptBox(title, msg), out int value) && value > 0;
+            if (valid)
                 return value;
-
-            MsgBox("Aviso", value <= 0 ? "O valor deve ser maior que zero. Tente novamente." : "Entrada inválida. Insira um valor numérico válido.", type: MessageType.Warning);
+            MsgBox("Aviso", valid ? "Entrada inválida. Insira um valor numérico válido." : "O valor deve ser maior que zero. Tente novamente.", type: MessageType.Warning);
         }
     }
 

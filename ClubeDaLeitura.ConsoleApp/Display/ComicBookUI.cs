@@ -105,11 +105,11 @@ public class ComicBookUI : BaseUI<ComicBook>
         else Utils.MsgBox("Erro", "Erro ao remover a revista. Tente novamente.", type: MessageType.Error);
     }
 
-    public override ComicBook Select(string? title = null, List<ComicBook>? entities = null)
+    public override ComicBook Select(string? title = null, List<ComicBook>? ignoredComicBooks = null)
     {
         title ??= "Selecionar revista";
         title = Utils.ColourStringHex(title, Colours.Title);
-        var availableComicBooks = GetAvailable(entities);
+        var availableComicBooks = GetAvailable(ignoredComicBooks);
         string[] options = availableComicBooks.Select(cb => $"{Utils.ColourStringHex(cb.Title, cb.Box.Colour)}, ID: {cb.Id}").ToArray();
         return availableComicBooks[Utils.Menu(title, options)];
     }

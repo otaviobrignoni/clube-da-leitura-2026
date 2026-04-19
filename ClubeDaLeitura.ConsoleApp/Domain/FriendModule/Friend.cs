@@ -5,10 +5,10 @@ namespace ClubeDaLeitura.ConsoleApp.Domain.FriendModule;
 
 public class Friend : BaseEntity<Friend>
 {
-    public string Name = string.Empty;
-    public string ParentName = string.Empty;
-    public string PhoneNumber = string.Empty;
-    public HashSet<Loan> Loans = [];
+    public string Name { get; internal set; } = string.Empty;
+    public string ParentName { get; internal set; } = string.Empty;
+    public string PhoneNumber { get; internal set; } = string.Empty;
+    public HashSet<Loan> Loans { get; } = [];
     public bool HasOpenLoan => Loans.Any(l => l.CurrentStatus == LoanStatus.Open || l.CurrentStatus == LoanStatus.Late);
     public bool HasLoan => Loans.Count > 0;
     public static readonly string[] Categories = ["Nome", "Responsável", "Telefone"];
@@ -26,18 +26,18 @@ public class Friend : BaseEntity<Friend>
         Loans.Add(loan);
         return true;
     }
-    public override void UpdateEntity(Friend updatedEntity)
+    public override void UpdateEntity(Friend updatedFriend)
     {
-        Name = updatedEntity.Name;
-        ParentName = updatedEntity.ParentName;
-        PhoneNumber = updatedEntity.PhoneNumber;
+        Name = updatedFriend.Name;
+        ParentName = updatedFriend.ParentName;
+        PhoneNumber = updatedFriend.PhoneNumber;
     }
 
-    public override bool Equals(Friend entity)
+    public override bool Equals(Friend friend)
     {
-        if (entity.Name != Name
-            || entity.ParentName != ParentName
-            || entity.PhoneNumber != PhoneNumber)
+        if (friend.Name != Name
+            || friend.ParentName != ParentName
+            || friend.PhoneNumber != PhoneNumber)
             return false;
         return true;
     }
