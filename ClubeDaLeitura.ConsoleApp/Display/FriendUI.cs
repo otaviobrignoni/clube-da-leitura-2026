@@ -65,7 +65,7 @@ public class FriendUI : BaseUI<Friend>
                     editedFriend.PhoneNumber = phoneNumber;
                     break;
                 case 1:
-                    editedFriend.ParentName = Utils.GetValidString(title, "Nome do responsável: ", minLength: 3, maxLength: 100);
+                    editedFriend.ParentName = Utils.GetValidString(title, "Nome do responsável: ", minLength: 3);
                     break;
                 case 2:
                     if (!editedFriend.Equals(friend))
