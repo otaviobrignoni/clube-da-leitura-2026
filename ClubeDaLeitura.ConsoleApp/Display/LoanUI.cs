@@ -83,7 +83,7 @@ public class LoanUI : BaseUI<Loan>, ILoanUI
             Utils.MsgBox("Erro", "Ocorreu um erro na abertura do empréstimo.", type: MessageType.Error);
             return;
         }
-        loan.ComicBook.ChangeStatus();
+        loan.ComicBook.SetLoaned();
         Repository.Add(loan);
     }
     public void Return()

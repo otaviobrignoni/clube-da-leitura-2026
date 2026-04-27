@@ -10,6 +10,7 @@ public class Friend : BaseEntity<Friend>
     public string PhoneNumber { get; internal set; } = string.Empty;
     public HashSet<Loan> Loans { get; } = [];
     public bool HasOpenLoan => Loans.Any(l => l.CurrentStatus == LoanStatus.Open || l.CurrentStatus == LoanStatus.Late);
+    public bool HasLateLoan => Loans.Any(l => l.CurrentStatus == LoanStatus.Late);
     public bool HasLoan => Loans.Count > 0;
     public static readonly string[] Categories = ["Nome", "Responsável", "Telefone"];
     public Friend(string name, string parentName, string phoneNumber)

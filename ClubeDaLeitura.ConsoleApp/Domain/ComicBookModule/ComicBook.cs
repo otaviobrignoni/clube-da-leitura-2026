@@ -35,13 +35,9 @@ public class ComicBook : BaseEntity<ComicBook>
         Box = box;
     }
     public ComicBook(ComicBook comicBook) : this(comicBook.Title, comicBook.Edition, comicBook.ReleaseDate, comicBook.Box) { }
-    public void ChangeStatus()
-    {
-        if (CurrentStatus == ComicBookStatus.Available)
-            CurrentStatus = ComicBookStatus.Loaned;
-        else if(CurrentStatus == ComicBookStatus.Loaned)
-            CurrentStatus = ComicBookStatus.Available;
-    }
+    public void SetLoaned() => CurrentStatus = ComicBookStatus.Loaned;
+    public void SetReserved() => CurrentStatus = ComicBookStatus.Reserved;
+    public void SetAvailable() => CurrentStatus = ComicBookStatus.Available;
     public override void UpdateEntity(ComicBook updatedComicBook)
     {
         if (Box != updatedComicBook.Box)

@@ -60,7 +60,7 @@ public class Loan : BaseEntity<Loan>
     {
         CurrentStatus = CurrentStatus == LoanStatus.Late ? LoanStatus.DoneLate : LoanStatus.Done;
         ReturnedDate = DateOnly.FromDateTime(DateTime.Now);
-        ComicBook.ChangeStatus();
+        ComicBook.SetAvailable();
     }
     public override void UpdateEntity(Loan updatedLoan)
     {

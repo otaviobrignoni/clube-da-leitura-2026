@@ -12,17 +12,19 @@ class Program
         Console.OutputEncoding = Encoding.UTF8;
 
         string title = Utils.ColourStringHex("Clube da Leitura", Colours.Title);
-        string[] options = ["Caixas", "Revistas", "Amigos", "Empréstimos", "Sair"];
+        string[] options = ["Caixas", "Revistas", "Amigos", "Empréstimos", "Reservas", "Sair"];
 
         BoxRepo boxRepo = new();
         ComicBookRepo comicBookRepo = new();
         FriendRepo friendRepo = new();
         LoanRepo loanRepo = new();
+        ReservationRepo reservationRepo = new();
 
         BoxUI bUI = new(boxRepo);
         ComicBookUI cUI = new(bUI, comicBookRepo);
         FriendUI fUI = new(friendRepo);
         LoanUI lUI = new(cUI, fUI, loanRepo);
+        ReservationUI rUI = new(cUI, fUI, loanRepo, reservationRepo);
 
         while (true)
             switch (Utils.Menu(title, options))
@@ -40,6 +42,9 @@ class Program
                     lUI.Menu();
                     break;
                 case 4:
+                    rUI.Menu();
+                    break;
+                case 5:
                     return;
             }
     }
