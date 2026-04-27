@@ -5,7 +5,7 @@ using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 namespace ClubeDaLeitura.ConsoleApp.Display;
 
-public class FriendUI : BaseUI<Friend>
+public class FriendUI : BaseUI<Friend>, IFriendUI
 {
     public FriendUI(IFriendRepo friendRepo) : base(friendRepo) { }
     public override void Menu()
@@ -44,7 +44,7 @@ public class FriendUI : BaseUI<Friend>
 
     public override void Edit()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhum amigo cadastrado para editar.", type: MessageType.Warning);
             return;
@@ -79,7 +79,7 @@ public class FriendUI : BaseUI<Friend>
 
     public override void Remove()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhum amigo cadastrado para remover.", type: MessageType.Warning);
             return;
@@ -103,7 +103,7 @@ public class FriendUI : BaseUI<Friend>
     }
     public override void View()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Info", "Nenhum amigo cadastrado.", type: MessageType.Info);
             return;
@@ -116,7 +116,7 @@ public class FriendUI : BaseUI<Friend>
     }
     public void ViewLoans()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Info", "Nenhum amigo cadastrado.", type: MessageType.Info);
             return;

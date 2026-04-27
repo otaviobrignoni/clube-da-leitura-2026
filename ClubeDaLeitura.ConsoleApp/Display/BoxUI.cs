@@ -4,7 +4,7 @@ using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 namespace ClubeDaLeitura.ConsoleApp.Display;
 
-public class BoxUI : BaseUI<Box>
+public class BoxUI : BaseUI<Box>, IBoxUI
 {
     public BoxUI(IBoxRepo boxRepo) : base(boxRepo) { }
 
@@ -42,7 +42,7 @@ public class BoxUI : BaseUI<Box>
     }
     public override void Edit()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhuma caixa cadastrada para editar.", type: MessageType.Warning);
             return;
@@ -76,7 +76,7 @@ public class BoxUI : BaseUI<Box>
     }
     public override void Remove()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhuma caixa cadastrada para remover.", type: MessageType.Warning);
             return;
@@ -102,7 +102,7 @@ public class BoxUI : BaseUI<Box>
 
     public override void View()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Info", "Nenhuma caixa cadastrada.", type: MessageType.Info);
             return;

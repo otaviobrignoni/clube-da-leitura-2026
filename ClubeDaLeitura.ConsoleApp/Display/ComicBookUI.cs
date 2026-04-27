@@ -1,13 +1,14 @@
+using ClubeDaLeitura.ConsoleApp.Domain.BoxModule;
 using ClubeDaLeitura.ConsoleApp.Domain.ComicBookModule;
 using ClubeDaLeitura.ConsoleApp.Shared;
 using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 namespace ClubeDaLeitura.ConsoleApp.Display;
 
-public class ComicBookUI : BaseUI<ComicBook>
+public class ComicBookUI : BaseUI<ComicBook>, IComicBookUI
 {
-    BoxUI BoxUI;
-    public ComicBookUI(BoxUI boxUI, IComicBookRepo comicBookRepo) : base(comicBookRepo)
+    private readonly IBoxUI BoxUI;
+    public ComicBookUI(IBoxUI boxUI, IComicBookRepo comicBookRepo) : base(comicBookRepo)
     {
         BoxUI = boxUI;
     }
@@ -37,7 +38,7 @@ public class ComicBookUI : BaseUI<ComicBook>
 
     public override void Add()
     {
-        if (!BoxUI.RepoHasAny)
+        if (!BoxUI.RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Para adicionar uma revista, primeiro cadastre uma caixa.", type: MessageType.Warning);
             return;
@@ -52,7 +53,7 @@ public class ComicBookUI : BaseUI<ComicBook>
 
     public override void Edit()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhuma revista cadastrada para editar.", type: MessageType.Warning);
             return;
@@ -89,7 +90,7 @@ public class ComicBookUI : BaseUI<ComicBook>
 
     public override void Remove()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhuma revista cadastrada para remover.", type: MessageType.Warning);
             return;
@@ -116,7 +117,7 @@ public class ComicBookUI : BaseUI<ComicBook>
 
     public override void View()
     {
-        if (!RepoHasAny)
+        if (!RepoHasAny())
         {
             Utils.MsgBox("Info", "Nenhuma revista cadastrada.", type: MessageType.Info);
             return;

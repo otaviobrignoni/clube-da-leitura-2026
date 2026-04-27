@@ -2,21 +2,20 @@ using ClubeDaLeitura.ConsoleApp.Domain.ComicBookModule;
 using ClubeDaLeitura.ConsoleApp.Domain.FriendModule;
 using ClubeDaLeitura.ConsoleApp.Domain.LoanModule;
 using ClubeDaLeitura.ConsoleApp.Shared;
+using ClubeDaLeitura.ConsoleApp.Shared.Base;
 
 namespace ClubeDaLeitura.ConsoleApp.Display;
 
-public class LoanUI
+public class LoanUI : BaseUI<Loan>, ILoanUI
 {
-    ComicBookUI comicBookUI;
-    FriendUI friendUI;
-    public ILoanRepo Repository { get; }
-    public LoanUI(ComicBookUI comicBookUI, FriendUI friendUI, ILoanRepo loanRepo)
+    private readonly IComicBookUI ComicBookUI;
+    private readonly IFriendUI FriendUI;
+    public LoanUI(IComicBookUI comicBookUI, IFriendUI friendUI, ILoanRepo loanRepo) : base(loanRepo)
     {
-        this.comicBookUI = comicBookUI;
-        this.friendUI = friendUI;
-        Repository = loanRepo;
+        ComicBookUI = comicBookUI;
+        FriendUI = friendUI;
     }
-    public void Menu()
+    public override void Menu()
     {
         string title = Utils.ColourStringHex("Gerenciar empréstimos", Colours.Title);
         string[] options = ["Emprestar revista", "Devolver revista", "Visualizar empréstimos", "Voltar"];
@@ -24,10 +23,10 @@ public class LoanUI
             switch (Utils.Menu(title, options))
             {
                 case 0:
-                    Open();
+                    Add();
                     break;
                 case 1:
-                    Return();
+                    Edit();
                     break;
                 case 2:
                     View();
@@ -36,32 +35,48 @@ public class LoanUI
                     return;
             }
     }
+
+    public override void Add()
+    {
+        Open();
+    }
+
+    public override void Edit()
+    {
+        Return();
+    }
+
+    public override void Remove()
+    {
+        Utils.MsgBox("Info", "Operação de remoção não se aplica a empréstimos.", type: MessageType.Info);
+    }
+
     public void Open()
     {
-        if (!comicBookUI.RepoHasAny)
+        if (!ComicBookUI.RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhuma revista cadastrada para emprestar.", type: MessageType.Warning);
             return;
         }
-        if (!friendUI.RepoHasAny)
+        if (!FriendUI.RepoHasAny())
         {
             Utils.MsgBox("Aviso", "Nenhum amigo cadastrado para emprestar uma revista.", type: MessageType.Warning);
             return;
         }
-        var validComicBooks = comicBookUI.Repository.GetAll().Where(cb => cb.IsAvailable).ToList();
+        var validComicBooks = ComicBookUI.GetAll().Where(cb => cb.IsAvailable).ToList();
         if (validComicBooks.Count < 1)
         {
             Utils.MsgBox("Aviso", "Nenhuma revista está disponível.", type: MessageType.Warning);
             return;
         }
-        var validFriends = friendUI.Repository.GetAll().Where(f => !f.HasOpenLoan).ToList();
+        var validFriends = FriendUI.GetAll().Where(f => !f.HasOpenLoan).ToList();
         if (validFriends.Count < 1)
         {
             Utils.MsgBox("Aviso", "Todos os amigos cadastrados já têm um empréstimo aberto.", type: MessageType.Warning);
             return;
         }
-        var ignoredFriends = friendUI.Repository.GetAll().Except(validFriends).ToList();
-        var ignoredComicBooks = comicBookUI.Repository.GetAll().Except(validComicBooks).ToList();
+        var ignoredFriends = FriendUI.GetAll().Except(validFriends).ToList();
+        var ignoredComicBooks = ComicBookUI.GetAll().Except(validComicBooks).ToList();
         Loan loan = new(SelectValidFriend(ignoredFriends), SelectValidComicBook(ignoredComicBooks));
         if (!loan.Friend.AddLoan(loan))
         {
@@ -84,7 +99,7 @@ public class LoanUI
         loan.ReturnComicBook();
     }
 
-    public Loan Select(string? title = null, List<Loan>? ignoredLoans = null)
+    public override Loan Select(string? title = null, List<Loan>? ignoredLoans = null)
     {
         title ??= "Selecionar empréstimo";
         title = Utils.ColourStringHex(title, Colours.Title);
@@ -92,7 +107,8 @@ public class LoanUI
         string[] options = availableLoans.Select(l => $"{l.Friend.Name}, {l.ComicBook.Title} N°{l.ComicBook.Edition}, Status: {Utils.ColourStringHex(l.StatusString, l.StatusColour)}").ToArray();
         return availableLoans[Utils.Menu(title, options)];
     }
-    public void View()
+
+    public override void View()
     {
         if (Repository.Count() < 1)
         {
@@ -108,18 +124,13 @@ public class LoanUI
             loans.Add([l.Friend.Name, $"{l.ComicBook.Title} N°{l.ComicBook.Edition}", $"{l.OpenedDate}", $"{l.ReturnDate}", l.ReturnedDate == null ? "Não" : $"{l.ReturnedDate}", Utils.ColourStringHex(l.StatusString, l.StatusColour)]);
         Utils.GenerateTable(title, Loan.Categories, loans.ToArray());
     }
-    public List<Loan> GetAvailable(IEnumerable<Loan>? ignoredLoans = null)
-    {
-        ignoredLoans ??= [];
-        return Repository.GetAll().Where(e => !ignoredLoans.Contains(e)).ToList();
-    }
     public Friend SelectValidFriend(List<Friend> ignoredFriends)
     {
-        return friendUI.Select("Selecionar amigo fazendo empréstimo", ignoredFriends);
+        return FriendUI.Select("Selecionar amigo fazendo empréstimo", ignoredFriends);
     }
     public ComicBook SelectValidComicBook(List<ComicBook> ignoredComicBooks)
     {
-        return comicBookUI.Select("Selecionar revista sendo emprestada", ignoredComicBooks);
+        return ComicBookUI.Select("Selecionar revista sendo emprestada", ignoredComicBooks);
     }
 
 }
