@@ -11,7 +11,7 @@ public class FriendUI : BaseUI<Friend>, IFriendUI
     public override void Menu()
     {
         string title = Utils.ColourStringHex("Gerenciar amigos", Colours.Title);
-        string[] options = ["Cadastrar amigo", "Editar amigo", "Remover amigo", "Visualizar amigos", "Visualizar empréstimos de um amigo", "Voltar"];
+        string[] options = ["Cadastrar amigo", "Editar amigo", "Remover amigo", "Visualizar amigos", "Visualizar empréstimos de um amigo", "Visualizar multas de um amigo", "Voltar"];
         while (true)
             switch (Utils.Menu(title, options))
             {
@@ -31,6 +31,9 @@ public class FriendUI : BaseUI<Friend>, IFriendUI
                     ViewLoans();
                     break;
                 case 5:
+                    ViewFines();
+                    break;
+                case 6:
                     return;
             }
     }
@@ -135,7 +138,30 @@ public class FriendUI : BaseUI<Friend>, IFriendUI
             loans.Add([$"{l.ComicBook.Title} N°{l.ComicBook.Edition}", $"{l.OpenedDate}", $"{l.ReturnDate}", l.ReturnedDate == null ? "Não" : $"{l.ReturnedDate}", Utils.ColourStringHex(l.StatusString, l.StatusColour)]);
         Utils.GenerateTable(title, Loan.Categories[1..], loans.ToArray());
     }
-
+    public void ViewFines()
+    {
+        if (!RepoHasAny())
+        {
+            Utils.MsgBox("Info", "Nenhum amigo cadastrado.", type: MessageType.Info);
+            return;
+        }
+        var finedFriends = Repository.GetAll().Where(f => f.Loans.Any(l => l.FineStatus != FineStatus.NoFine)).ToList();
+        if (finedFriends.Count < 1)
+        {
+            Utils.MsgBox("Info", "Nenhum amigo tem multa.", type: MessageType.Info);
+            return;
+        }
+        Friend friend = Select(ignoredFriends: Repository.GetAll().Except(finedFriends).ToList());
+        string title = Utils.ColourStringHex($"Multas de {friend.Name}", Colours.Title);
+        List<string[]> loans = [];
+        var loansWithFine = friend.Loans.Where(l => l.FineStatus != FineStatus.NoFine)
+                                        .OrderBy(l => l.StatusOrder)
+                                        .ThenBy(l => l.OpenedDate);
+        foreach (Loan l in loansWithFine)
+            loans.Add([$"{l.ComicBook.Title} N°{l.ComicBook.Edition}", Utils.ColourStringHex(l.StatusString, l.StatusColour), $"{Utils.ColourStringHex(l.FineStatusString, l.FineStatusColour)} - R$ {l.FineValue:F2}"]);
+        int[] categories = [1, 5, 6];
+        Utils.GenerateTable(title, categories.Select(i => Loan.Categories[i]).ToArray(), loans.ToArray());
+    }
     public (string, string) GetValidNameAndPhoneNumber(string title, List<Friend>? ignoredFriends = null)
     {
         while (true)

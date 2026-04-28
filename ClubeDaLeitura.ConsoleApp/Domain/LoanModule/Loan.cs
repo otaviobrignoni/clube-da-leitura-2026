@@ -7,8 +7,9 @@ namespace ClubeDaLeitura.ConsoleApp.Domain.LoanModule;
 
 public class Loan : BaseEntity<Loan>
 {
-    public Friend Friend { get; internal set; } = null!;
-    public ComicBook ComicBook { get; internal set; } = null!;
+
+    public Friend Friend { get; internal set; }
+    public ComicBook ComicBook { get; internal set; }
     public DateOnly OpenedDate { get; private set; }
     public DateOnly ReturnDate { get; private set; }
     public DateOnly? ReturnedDate { get; private set; }
@@ -47,7 +48,36 @@ public class Loan : BaseEntity<Loan>
         LoanStatus.DoneLate => 2,
         _ => 3
     };
-    public static readonly string[] Categories = ["Amigo", "Revista", "Emprestada", "Data de devolução", "Devolvida", "Status"];
+    private bool isFinePaid = false;
+    public FineStatus FineStatus
+    {
+        get
+        {
+            if (isFinePaid)
+                return FineStatus.Paid;
+            else if (CurrentStatus == LoanStatus.Late || CurrentStatus == LoanStatus.DoneLate)
+                return FineStatus.Pending;
+            else
+                return FineStatus.NoFine;
+        }
+    }
+    public string FineStatusString => FineStatus switch
+    {
+        FineStatus.NoFine => "Sem Multa",
+        FineStatus.Pending => "Pendente",
+        FineStatus.Paid => "Quitada",
+        _ => string.Empty
+    };
+    public string FineStatusColour => FineStatus switch
+    {
+        FineStatus.NoFine => Colours.LightBlue,
+        FineStatus.Pending => Colours.LightRed,
+        FineStatus.Paid => Colours.LightGreen,
+        _ => string.Empty
+    };
+
+    public decimal FineValue => CalculateFine();
+    public static readonly string[] Categories = ["Amigo", "Revista", "Emprestada", "Data de devolução", "Devolvida", "Status", "Multa"];
     public Loan(Friend friend, ComicBook comicBook)
     {
         Friend = friend;
@@ -55,12 +85,23 @@ public class Loan : BaseEntity<Loan>
         OpenedDate = DateOnly.FromDateTime(DateTime.Now);
         ReturnDate = OpenedDate.AddDays(comicBook.Box.LoanDays);
         CurrentStatus = LoanStatus.Open;
+        isFinePaid = false;
     }
     public void ReturnComicBook()
     {
         CurrentStatus = CurrentStatus == LoanStatus.Late ? LoanStatus.DoneLate : LoanStatus.Done;
         ReturnedDate = DateOnly.FromDateTime(DateTime.Now);
         ComicBook.SetAvailable();
+    }
+    public decimal CalculateFine()
+    {
+        DateOnly referenceDate = ReturnedDate ?? DateOnly.FromDateTime(DateTime.Now);
+        int days = referenceDate.DayNumber - ReturnDate.DayNumber;
+        return days > 0 ? days * 2.0m : 0;
+    }
+    public void PayFine()
+    {
+        isFinePaid = true;
     }
     public override void UpdateEntity(Loan updatedLoan)
     {

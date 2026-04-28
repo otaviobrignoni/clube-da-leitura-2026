@@ -73,7 +73,7 @@ public class ReservationUI : BaseUI<Reservation>, IReservationUI
             Utils.MsgBox("Aviso", "Nenhuma revista está disponível para reserva.", type: MessageType.Warning);
             return;
         }
-        var validFriends = FriendUI.GetAll().Where(f => !f.HasLateLoan).ToList();
+        var validFriends = FriendUI.GetAll().Where(f => !f.HasPendingFine).ToList();
         if (validFriends.Count < 1)
         {
             Utils.MsgBox("Aviso", "Todos os amigos cadastrados possuem multas em aberto.", type: MessageType.Warning);
@@ -103,7 +103,11 @@ public class ReservationUI : BaseUI<Reservation>, IReservationUI
             Utils.MsgBox("Aviso", "O amigo já possui um empréstimo aberto.", type: MessageType.Warning);
             return;
         }
-
+        if (reservation.Friend.HasPendingFine)
+        {
+            Utils.MsgBox("Aviso", "O amigo possui multa pendente e não pode reservar revistas.", type: MessageType.Warning);
+            return;
+        }
         Loan loan = reservation.ConvertToLoan();
         loan.Friend.AddLoan(loan);
         LoanRepo.Add(loan);

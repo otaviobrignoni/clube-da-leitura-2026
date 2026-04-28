@@ -8,8 +8,8 @@ namespace ClubeDaLeitura.ConsoleApp.Domain.ReservationModule;
 
 public class Reservation : BaseEntity<Reservation>
 {
-    public Friend Friend { get; internal set; } = null!;
-    public ComicBook ComicBook { get; internal set; } = null!;
+    public Friend Friend { get; internal set; }
+    public ComicBook ComicBook { get; internal set; }
     public DateOnly ReservedDate { get; private set; }
     public ReservationStatus ReservationStatus;
     public string StatusString => ReservationStatus switch
@@ -55,11 +55,17 @@ public class Reservation : BaseEntity<Reservation>
     }
     public override bool Equals(Reservation reservation)
     {
-        throw new NotImplementedException();
+        if (reservation.Friend != Friend
+            || reservation.ComicBook != ComicBook
+            || reservation.ReservationStatus != ReservationStatus)
+            return false;
+        return true;
     }
 
     public override void UpdateEntity(Reservation updatedReservation)
     {
-        throw new NotImplementedException();
+        Friend = updatedReservation.Friend;
+        ComicBook = updatedReservation.ComicBook;
+        ReservationStatus = updatedReservation.ReservationStatus;
     }
 }

@@ -18,7 +18,7 @@ public class LoanUI : BaseUI<Loan>, ILoanUI
     public override void Menu()
     {
         string title = Utils.ColourStringHex("Gerenciar empréstimos", Colours.Title);
-        string[] options = ["Emprestar revista", "Devolver revista", "Visualizar empréstimos", "Voltar"];
+        string[] options = ["Emprestar revista", "Devolver revista", "Visualizar empréstimos", "Visualizar multas", "Quitar multa", "Voltar"];
         while (true)
             switch (Utils.Menu(title, options))
             {
@@ -32,6 +32,12 @@ public class LoanUI : BaseUI<Loan>, ILoanUI
                     View();
                     break;
                 case 3:
+                    ViewFines();
+                    break;
+                case 4:
+                    PayFine();
+                    break;
+                case 5:
                     return;
             }
     }
@@ -69,10 +75,10 @@ public class LoanUI : BaseUI<Loan>, ILoanUI
             Utils.MsgBox("Aviso", "Nenhuma revista está disponível.", type: MessageType.Warning);
             return;
         }
-        var validFriends = FriendUI.GetAll().Where(f => !f.HasOpenLoan).ToList();
+        var validFriends = FriendUI.GetAll().Where(f => !f.HasOpenLoan && !f.HasPendingFine).ToList();
         if (validFriends.Count < 1)
         {
-            Utils.MsgBox("Aviso", "Todos os amigos cadastrados já têm um empréstimo aberto.", type: MessageType.Warning);
+            Utils.MsgBox("Aviso", "Todos os amigos cadastrados já têm um empréstimo aberto ou uma multa pendente.", type: MessageType.Warning);
             return;
         }
         var ignoredFriends = FriendUI.GetAll().Except(validFriends).ToList();
@@ -123,6 +129,50 @@ public class LoanUI : BaseUI<Loan>, ILoanUI
         foreach (Loan l in orderedLoans)
             loans.Add([l.Friend.Name, $"{l.ComicBook.Title} N°{l.ComicBook.Edition}", $"{l.OpenedDate}", $"{l.ReturnDate}", l.ReturnedDate == null ? "Não" : $"{l.ReturnedDate}", Utils.ColourStringHex(l.StatusString, l.StatusColour)]);
         Utils.GenerateTable(title, Loan.Categories, loans.ToArray());
+    }
+    public void ViewFines()
+    {
+        if (Repository.Count() < 1)
+        {
+            Utils.MsgBox("Info", "Não há empréstimos.", type: MessageType.Info);
+            return;
+        }
+        var loansWithFine = Repository.GetAll().Where(l => l.FineStatus != FineStatus.NoFine);
+        if (loansWithFine.Count() < 1)
+        {
+            Utils.MsgBox("Info", "Não há multas.", type: MessageType.Info);
+            return;
+        }
+        string title = Utils.ColourStringHex("Multas", Colours.Title);
+        List<string[]> loans = [];
+        var orderedLoans = loansWithFine.OrderBy(l => l.StatusOrder)
+                                        .ThenBy(l => l.OpenedDate);
+        foreach (Loan l in orderedLoans)
+            loans.Add([l.Friend.Name, $"{l.ComicBook.Title} N°{l.ComicBook.Edition}", Utils.ColourStringHex(l.StatusString, l.StatusColour), Utils.ColourStringHex(l.FineStatusString, l.FineStatusColour), $"R$ {l.FineValue:F2}"]);
+        int[] categories = [0, 1, 5, 6];
+        Utils.GenerateTable(title, categories.Select(i => Loan.Categories[i]).Append("Valor").ToArray(), loans.ToArray());
+    }
+
+    public void PayFine()
+    {
+        if (Repository.Count() < 1)
+        {
+            Utils.MsgBox("Info", "Não há empréstimos.", type: MessageType.Info);
+            return;
+        }
+
+        var pendingFines = Repository.GetAll().Where(l => l.FineStatus == FineStatus.Pending).ToList();
+        var ignoredLoans = Repository.GetAll().Except(pendingFines).ToList();
+
+        if (pendingFines.Count == 0)
+        {
+            Utils.MsgBox("Info", "Não há multas pendentes para quitar.", type: MessageType.Info);
+            return;
+        }
+
+        Loan loan = Select("Quitar multa", ignoredLoans);
+        loan.PayFine();
+        Utils.MsgBox("Sucesso", $"Multa quitada. Valor pago: R$ {loan.FineValue:F2}", type: MessageType.Success);
     }
     public Friend SelectValidFriend(List<Friend> ignoredFriends)
     {
